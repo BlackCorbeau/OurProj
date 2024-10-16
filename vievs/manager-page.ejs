@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Manager Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 170vh;
+            margin: 0;
+        }
+        .profile-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            text-align: center;
+        }
+        .profile-container h2 {
+            margin-bottom: 20px;
+        }
+        .profile-container .info {
+            margin-bottom: 20px;
+        }
+        .profile-container .info p {
+            margin: 5px 0;
+        }
+        .profile-container .charts {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .profile-container .charts div {
+            width: 100%;
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .profile-container .recruiters {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: 600px; /* Увеличиваем высоту блока */
+            overflow-y: auto; /* Добавляем прокрутку */
+        }
+        .profile-container .recruiters h3 {
+            margin-bottom: 10px;
+        }
+        .profile-container .recruiters p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .show-more-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .show-more-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h2>HR Manager Dashboard</h2>
+        <div class="info">
+            <p><strong>Full Name:</strong> <%= hrManager.fullName %></p>
+            <p><strong>Department:</strong> <%= hrManager.department %></p>
+        </div>
+        <div class="charts">
+            <div>
+                <h3>Department Performance</h3>
+                <!-- Placeholder for chart -->
+                <canvas id="myChart" width="600" height="150"></canvas>
+            </div>
+        </div>
+        <div class="recruiters">
+            <h3>Recruiters List</h3>
+            <div id="recruiters-list">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Recruiter Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% chartTableData.slice(0, 5).forEach(function(recruiter) { %>
+                            <tr>
+                                <td><%= recruiter.name %></td>
+                                <td><%= recruiter.email %></td>
+                                <td>
+                                    <button class="manage-btn" data-id="<%= recruiter.id %>">Manage</button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+                <button class="show-more-btn" id="show-more-btn">Show More</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение Chart.js через CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Данные для гистограммы из JSON файла
+        const chartData = <%- JSON.stringify(chartData) %>;
+
+        // Конфигурация гистограммы
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Создание гистограммы
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+
+        // Функция для отображения дополнительных записей
+        document.getElementById('show-more-btn').addEventListener('click', function() {
+            const tableBody = document.querySelector('#recruiters-list table tbody');
+            const hiddenData = <%- JSON.stringify(chartData) %>;
+            hiddenData.forEach(function(recruiter) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${recruiter.name}</td>
+                    <td>${recruiter.email}</td>
+                    <td>
+                        <button class="manage-btn" data-id="${recruiter.id}">Manage</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            this.style.display = 'none'; // Скрыть кнопку после нажатия
+        });
+
+        // Функция для управления аккаунтами рекрутеров
+        document.querySelectorAll('.manage-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const recruiterId = this.getAttribute('data-id');
+                alert('Manage recruiter with ID: ' + recruiterId);
+                // Здесь можно добавить логику для управления аккаунтами рекрутеров
+            });
+        });
+    </script>
+</body>
+</html>

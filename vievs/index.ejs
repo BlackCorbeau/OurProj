@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 170vh;
+            margin: 0;
+        }
+        .profile-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            text-align: center;
+        }
+        .profile-container h2 {
+            margin-bottom: 20px;
+        }
+        .profile-container img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        .profile-container .info {
+            margin-bottom: 20px;
+        }
+        .profile-container .info p {
+            margin: 5px 0;
+        }
+        .profile-container .charts {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .profile-container .charts div {
+            width: 100%;
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .profile-container .history {
+            background-color: #e9ecef;
+            padding: 20px;
+            background: linear-gradient(to right, rgba(75, 192, 192, 0.2), rgba(153, 102, 255, 0.2), rgba(255, 159, 64, 0.2));
+            border-radius: 5px;
+            max-height: 600px; /* Увеличиваем высоту блока */
+            overflow-y: auto; /* Добавляем прокрутку */
+        }
+        .profile-container .history h3 {
+            margin-bottom: 10px;
+        }
+        .profile-container .history p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        .show-more-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .show-more-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h2>User Profile</h2>
+        <div class="image-container">
+            <img src="/images/<%= user.photo %>" alt="User Photo">
+        </div>
+        <!--<input type="file" id="imageUpload" accept="image/*" style="display: none;">-->
+        <!--<button onclick="document.getElementById('imageUpload').click()">Change Photo</button>-->
+        <div class="info">
+            <p><strong>Name:</strong><%= user.first_name %> <%= user.last_name %></p>
+            <!--<p><strong>Department:</strong> <%= user.department %></p>-->
+        </div>
+        <input type="hidden" id="userFullName" value="<%= user.first_name %>">
+        <div class="charts">
+            <div>
+                <h3>Applications and Interviews</h3>
+                <!-- Placeholder for chart -->
+                <canvas id="myChart" width="600" height="150"></canvas>
+            </div>
+        </div>
+        <div class="history">
+            <h3>Recent Activity</h3>
+            <div id="recent-activity">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Id резюме</th>
+                            <th>Рассмотрено/Не рассмотрено</th>
+                            <th>Было проведено собеседование/Не было проведено собеседования</th>
+                            <th>Причина отказа/причина принятия на работу</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% chartTableData.slice(0, 5).forEach(function(item) { %>
+                            <tr>
+                                <td><%= item.id %></td>
+                                <td><%= item.reviewed ? 'Рассмотрено' : 'Не рассмотрено' %></td>
+                                <td><%= item.interviewed ? 'Было проведено собеседование' : 'Не было проведено собеседования' %></td>
+                                <td><%= item.reason %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+                <button class="show-more-btn" id="show-more-btn">Show More</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение Chart.js через CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Данные для гистограммы из JSON файла
+        const chartData = <%- JSON.stringify(chartData) %>;
+
+        // Конфигурация гистограммы
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Создание гистограммы
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+
+        // Функция для отображения дополнительных записей
+        document.getElementById('show-more-btn').addEventListener('click', function() {
+            const tableBody = document.querySelector('#recent-activity table tbody');
+            const hiddenData = <%- JSON.stringify(chartTableData.slice(5)) %>;
+            hiddenData.forEach(function(item) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.reviewed ? 'Рассмотрено' : 'Не рассмотрено'}</td>
+                    <td>${item.interviewed ? 'Было проведено собеседование' : 'Не было проведено собеседования'}</td>
+                    <td>${item.reason}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            this.style.display = 'none'; // Скрыть кнопку после нажатия
+        });
+
+        /*// Функция для загрузки изображения
+        async function uploadImage() {
+            const fileInput = document.getElementById('imageUpload');
+            const file = fileInput.files[0];
+            const userFullName = document.getElementById('userFullName').value;
+
+            if (!file) {
+                alert('Please select an image to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file, `${userFullName}_${Date.now()}${path.extname(file.name)}`);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('Image uploaded successfully!');
+                    // Обновите изображение на странице после успешной загрузки
+                    const imgElement = document.querySelector('.profile-container img');
+                    imgElement.src = URL.createObjectURL(file);
+                } else {
+                    alert('Failed to upload image.');
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Failed to upload image.');
+            }
+        }
+
+        // Обработчик события для кнопки загрузки изображения
+        document.getElementById('imageUpload').addEventListener('change', uploadImage);
+        */
+    </script>
+</body>
+</html>
