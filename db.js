@@ -3,6 +3,18 @@ const dbname = 'later.sqlite';
 const db = new sqlite3.Database(dbname);
 
 db.serialize(() => {
+    const createDepertmentTable =  `
+    CREATE TABLE IF NOT EXISTS "Department" (
+        "id" INTEGER NOT NULL,
+        "name" TEXT NOT NULL,
+        "director_id" INTEGER NOT NULL,
+        PRIMARY KEY("id"),
+        FOREIGN KEY("director_id") REFERENCES "HRManadger"("id")
+    );
+    `
+
+
+
     const createRecrutersTable = `
     CREATE TABLE IF NOT EXISTS "Recruters" (
         "id" INTEGER NOT NULL,
@@ -13,7 +25,22 @@ db.serialize(() => {
         "registration_date" DATE NOT NULL,
         "photo" TEXT,
         "department" INTEGER,
-        PRIMARY KEY("id")
+        PRIMARY KEY("id"),
+        FOREIGN KEY("department") REFERENCES "Department"("id")
+    );
+    `;
+
+    const  createHRManadgerTable = `
+    CREATE TABLE IF NOT EXISTS "HRManadger" (
+        "id" INTEGER NOT NULL,
+        "first_name" TEXT NOT NULL,
+        "last_name" TEXT NOT NULL,
+        "password" INTEGER NOT NULL,
+        "email" TEXT NOT NULL,
+        "photo" TEXT,
+        "department" INTEGER NOT NULL,
+        PRIMARY KEY("id"),
+        FOREIGN KEY("department") REFERENCES "Department"("id")
     );
     `;
 
@@ -58,33 +85,40 @@ db.serialize(() => {
     const createMetricsTable = `
     CREATE TABLE IF NOT EXISTS "Metrics" (
         "id" INTEGER NOT NULL,
-        "vacancy_id" INTEGER NOT NULL,
+        "recruiter_id" INTEGER NOT NULL,
         "processed_resumes" INTEGER NOT NULL,
+        "accepted_resumes" INTEGER NOT NULL,
+        "rejected_resumes" INTEGER NOT NULL,
         "conducted_interviews" INTEGER NOT NULL,
         "average_closing_time" INTEGER NOT NULL,
+        "vacancy_id" INTEGER NOT NULL,
         PRIMARY KEY("id" AUTOINCREMENT),
+        FOREIGN KEY("recruiter_id") REFERENCES "Recruters"("id"),
         FOREIGN KEY("vacancy_id") REFERENCES "Vacancies"("id")
     );
     `;
 
-    const createRecrutersMetricsTable = `
-    CREATE TABLE IF NOT EXISTS "RecrutersMetrics" (
-        "id" INTEGER NOT NULL,
-        "recruiter_id" INTEGER NOT NULL,
-        "processed_resumes" INTEGER NOT NULL,
-        "open_resumes" INTEGER NOT NULL,
-        "close_resumes" INTEGER NOT NULL,
-        "conducted_interviews" INTEGER NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT),
-        FOREIGN KEY("recruiter_id") REFERENCES "Recruters"("id")
-    );
-    `;
+    db.run(createDepertmentTable, (err) => {
+        if (err) {
+            console.error('Error creating Recruters table:', err);
+        } else {
+            console.log('Department table created successfully');
+        }
+    });
 
     db.run(createRecrutersTable, (err) => {
         if (err) {
             console.error('Error creating Recruters table:', err);
         } else {
             console.log('Recruters table created successfully');
+        }
+    });
+
+    db.run(createHRManadgerTable, (err) => {
+        if (err) {
+            console.error('Error creating Recruters table:', err);
+        } else {
+            console.log('HRManadger table created successfully');
         }
     });
 
@@ -117,14 +151,6 @@ db.serialize(() => {
             console.error('Error creating Metrics table:', err);
         } else {
             console.log('Metrics table created successfully');
-        }
-    });
-
-    db.run(createRecrutersMetricsTable, (err) => {
-        if (err) {
-            console.error('Error creating RecrutersMetrics table:', err);
-        } else {
-            console.log('RecrutersMetrics table created successfully');
         }
     });
 });
@@ -251,26 +277,6 @@ class Metric {
     }
 }
 
-class RecruterMetric {
-    static allRecruterMetrics(cb) {
-        db.all("SELECT * FROM RecrutersMetrics", cb);
-    }
 
-    static addRecruterMetric(recruiter_id, processed_resumes, open_resumes, close_resumes, conducted_interviews, cb) {
-        const sql = "INSERT INTO RecrutersMetrics (recruiter_id, processed_resumes, open_resumes, close_resumes, conducted_interviews) VALUES (?, ?, ?, ?, ?)";
-        db.run(sql, recruiter_id, processed_resumes, open_resumes, close_resumes, conducted_interviews, cb);
-    }
-
-    static updateRecruterMetric(id, recruiter_id, processed_resumes, open_resumes, close_resumes, conducted_interviews, cb) {
-        const sql = "UPDATE RecrutersMetrics SET recruiter_id = ?, processed_resumes = ?, open_resumes = ?, close_resumes = ?, conducted_interviews = ? WHERE id = ?";
-        db.run(sql, recruiter_id, processed_resumes, open_resumes, close_resumes, conducted_interviews, id, cb);
-    }
-
-    static deleteRecruterMetric(id, cb) {
-        const sql = "DELETE FROM RecrutersMetrics WHERE id = ?";
-        db.run(sql, id, cb);
-    }
-}
-
-export { db, Recruter, Vacancy, Resume, Interview, Metric, RecruterMetric };
+export { db, Recruter, Vacancy, Resume, Interview, Metric};
 
