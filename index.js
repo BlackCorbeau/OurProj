@@ -14,7 +14,7 @@ import { createChartHRTableDataJson } from './build_data/build_HRTableData.js'
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import bcrypt from 'bcryptjs'
-import { Recruter, Vacancy, Resume, Interview, Metric, RecruterMetric } from './db.js';
+import { Recruter, Vacancy, Resume, Interview, Metric} from './db.js';
 Interview.addInterview(1, 1)
 Interview.addInterview(2, 1)
 Interview.addInterview(3, 2)
