@@ -3,7 +3,6 @@ import express from 'express'
 import path from 'path'
 import morgan from 'morgan'
 import methodOverride from 'method-override'
-import multer from 'multer'
 import { createPath } from './helpers/createPath.js'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
@@ -11,8 +10,6 @@ import { createChartDataJson } from './build_data/build_data.js'
 import { createChartTableDataJson } from './build_data/Build_tableData.js'
 import { createHRChartDataJson } from './build_data/build_HRData.js'
 import { createChartHRTableDataJson } from './build_data/build_HRTableData.js'
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
 import bcrypt from 'bcryptjs'
 import { Recruter, Vacancy, Resume, Interview, Metric, RecruterMetric } from './db.js';
 Interview.addInterview(1, 1)
@@ -37,7 +34,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
 
-app.get('/account/:email', (req, res) => {
+app.get('/account/:email/profile', (req, res) => {
   const title = 'Profile';
 
   const User = Recruter.findByEmail(req.params.email, (err, user) => {
@@ -52,9 +49,29 @@ app.get('/account/:email', (req, res) => {
     createChartTableDataJson(tableDataPath);
     const chartData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
     const chartTableData = JSON.parse(fs.readFileSync(tableDataPath, 'utf8'));
-    res.render(createPath('index'), { user, chartData, chartTableData });
+    res.render(createPath('user-page'), { user, chartData, chartTableData });
   });
 
+});
+
+app.get("/account/:email/workspace", (req, res) => {
+
+  const resumePath = path.join(__dirname, 'data', 'resume.json');
+  const vacancysPath = path.join(__dirname, 'data', 'vacancys.json');
+
+  const User = Recruter.findByEmail(req.params.email, (err, user) => {
+    if (err) {
+      console.error('Error fetching user by email:', err);
+      return reject(err);
+    };
+
+    const resumes = JSON.parse(fs.readFileSync(resumePath, 'utf8'));
+    const vacancys = JSON.parse(fs.readFileSync(vacancysPath, 'utf8'));
+   
+    console.log(`${resumes.name},\n${vacancys}`)
+
+    res.render(createPath("user-workspace"), { user, resumes, vacancys })
+  });
 });
 
 /*// Настройка multer для загрузки файлов
@@ -126,7 +143,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Перенаправление на главную страницу после успешного входа
-    res.redirect(`/account/${userEmail}`);
+    res.redirect(`/account/${userEmail}/profile`);
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ message: 'Server error' });

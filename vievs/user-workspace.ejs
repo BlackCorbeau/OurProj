@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Vacancies and Resumes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 100%;
+        }
+        .filter-container, .resume-container, .vacancies-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 10px;
+            overflow-y: auto;
+            max-height: 80vh; /* Устанавливаем максимальную высоту для ползунка */
+        }
+        .filter-container {
+            width: 20%;
+        }
+        .resume-container, .vacancies-container {
+            width: 30%;
+        }
+        .filter-container h2, .resume-container h2, .vacancies-container h2 {
+            margin-bottom: 20px;
+        }
+        .resume-item, .vacancies-container .vacancy {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.3s ease, width 0.3s ease;
+            position: relative;
+        }
+        .resume-item h3, .vacancies-container .vacancy h3 {
+            margin-bottom: 10px;
+        }
+        .resume-item p, .vacancies-container .vacancy p {
+            margin: 5px 0;
+        }
+        .filter-item {
+            margin-bottom: 20px;
+        }
+        .filter-item label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .filter-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .vacancy-detail {
+            display: none;
+            width: 100%;
+            max-width: 80vh;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            overflow-y: auto;
+            max-height: 80vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .vacancy-detail h3 {
+            margin-bottom: 10px;
+        }
+        .vacancy-detail p {
+            margin: 5px 0;
+            flex: 1;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        .user-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+        .user-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+        }
+        .user-menu img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .user-menu button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .user-menu button:hover {
+            background-color: #0056b3;
+        }
+        .menu-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-button" onclick="toggleUserMenu()">
+        <img src="/images/<%= user.photo %>" alt="User Photo" style="width: 100%; height: 100%; border-radius: 50%;">
+    </button>
+    <div class="user-menu" id="user-menu">
+        <img src="/images/<%= user.photo %>" alt="User Photo"> <!-- Динамические данные -->
+        <p><strong><%= user.first_name %> <%= user.last_name %></strong></p> <!-- Динамические данные -->
+        <button onclick="performAction('profile')">Profile</button>
+        <button onclick="performAction('startDay')">Start Work Day</button>
+        <button onclick="performAction('endDay')">End Work Day</button>
+        <button onclick="performAction('guide')">User Guide</button>
+        <button onclick="performAction('help')">Help</button>
+        <button onclick="performAction('logout')">Logout</button>
+    </div>
+    <div class="container">
+        <div class="filter-container">
+            <h2>Resume Filters</h2>
+            <div class="filter-item">
+                <label for="resume-name">Name</label>
+                <input type="text" id="resume-name" placeholder="Enter name">
+            </div>
+            <div class="filter-item">
+                <label for="resume-email">Email</label>
+                <input type="text" id="resume-email" placeholder="Enter email">
+            </div>
+            <div class="filter-item">
+                <label for="resume-phone">Phone</label>
+                <input type="text" id="resume-phone" placeholder="Enter phone">
+            </div>
+        </div>
+        <div class="resume-container">
+            <h2>Resume Information</h2>
+            <% if (resumes && Array.isArray(resumes)) { %>
+                <% resumes.forEach(function(resume) { %>
+                    <div class="resume-item">
+                        <div class="user-photo">
+                            <img src="<%= resume.photo %>" alt="User Photo">
+                        </div>
+                        <h3>Personal Information</h3>
+                        <p><strong>Name:</strong> <%= resume.name %></p>
+                        <p><strong>Email:</strong> <%= resume.email %></p>
+                        <p><strong>Phone:</strong> <%= resume.phone %></p>
+
+                        <h3>Experience</h3>
+                        <% if (resume.experience && Array.isArray(resume.experience)) { %>
+                            <% resume.experience.forEach(function(exp) { %>
+                                <p><strong>Company:</strong> <%= exp.company %></p>
+                                <p><strong>Position:</strong> <%= exp.position %></p>
+                                <p><strong>Duration:</strong> <%= exp.duration %></p>
+                                <p><strong>Description:</strong> <%= exp.description %></p>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No experience information available.</p>
+                        <% } %>
+
+                        <h3>Education</h3>
+                        <% if (resume.education && Array.isArray(resume.education)) { %>
+                            <% resume.education.forEach(function(edu) { %>
+                                <p><strong>Institution:</strong> <%= edu.institution %></p>
+                                <p><strong>Degree:</strong> <%= edu.degree %></p>
+                                <p><strong>Duration:</strong> <%= edu.duration %></p>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No education information available.</p>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No resumes available.</p>
+            <% } %>
+        </div>
+        <div class="vacancies-container" id="vacancies-container">
+            <h2>Job Vacancies</h2>
+            <% if (vacancys && Array.isArray(vacancys)) { %>
+                <% vacancys.forEach(function(vacancy) { %>
+                    <div class="vacancy" onclick="showVacancyDetail(<%= JSON.stringify(vacancy) %>)">
+                        <h3><%= vacancy.title %></h3>
+                        <p><strong>Company:</strong> <%= vacancy.company %></p>
+                        <p><strong>Location:</strong> <%= vacancy.location %></p>
+                        <p><strong>Description:</strong> <%= vacancy.description %></p>
+                        <p><strong>Salary:</strong> <%= vacancy.salary %></p>
+                        <p><strong>Posted On:</strong> <%= vacancy.postedOn %></p>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No vacancies available.</p>
+            <% } %>
+        </div>
+        <div class="vacancy-detail hidden" id="vacancy-detail">
+            <h3 id="vacancy-detail-title"></h3>
+            <p><strong>Company:</strong> <span id="vacancy-detail-company"></span></p>
+            <p><strong>Location:</strong> <span id="vacancy-detail-location"></span></p>
+            <p><strong>Description:</strong> <span id="vacancy-detail-description"></span></p>
+            <p><strong>Salary:</strong> <span id="vacancy-detail-salary"></span></p>
+            <p><strong>Posted On:</strong> <span id="vacancy-detail-postedOn"></span></p>
+            <button class="back-button" onclick="hideVacancyDetail()">Back</button>
+        </div>
+    </div>
+    <script>
+        function showVacancyDetail(vacancy) {
+            document.getElementById('vacancy-detail-title').innerText = vacancy.title;
+            document.getElementById('vacancy-detail-company').innerText = vacancy.company;
+            document.getElementById('vacancy-detail-location').innerText = vacancy.location;
+            document.getElementById('vacancy-detail-description').innerText = vacancy.description;
+            document.getElementById('vacancy-detail-salary').innerText = vacancy.salary;
+            document.getElementById('vacancy-detail-postedOn').innerText = vacancy.postedOn;
+
+            document.getElementById('vacancies-container').classList.add('hidden');
+            document.getElementById('vacancy-detail').classList.remove('hidden');
+        }
+
+        function hideVacancyDetail() {
+            document.getElementById('vacancies-container').classList.remove('hidden');
+            document.getElementById('vacancy-detail').classList.add('hidden');
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            const button = document.querySelector('.menu-button');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+            button.style.display = button.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function performAction(action) {
+            if (action === 'profile') {
+                const userEmail = '<%= user.email %>';
+                window.location.href = `/account/${userEmail}/profile`;
+            } else {
+                alert('Performing action: ' + action);
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('user-menu');
+            const button = document.querySelector('.menu-button');
+            if (menu.style.display === 'flex' && !menu.contains(event.target) && !button.contains(event.target)) {
+                menu.style.display = 'none';
+                button.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+[
+    {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1234567890",
+        "experience": [
+            {
+                "company": "TechCorp",
+                "position": "Software Engineer",
+                "duration": "Jan 2020 - Present",
+                "description": "Developed and maintained web applications."
+            },
+            {
+                "company": "Innovatech",
+                "position": "Junior Developer",
+                "duration": "Jun 2018 - Dec 2019",
+                "description": "Assisted in the development of internal tools."
+            }
+        ],
+        "education": [
+            {
+                "institution": "University of Technology",
+                "degree": "Bachelor of Science in Computer Science",
+                "duration": "Sep 2014 - May 2018"
+            }
+        ]
+    },
+    {
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "phone": "+0987654321",
+        "experience": [
+            {
+                "company": "DataInsights",
+                "position": "Data Analyst",
+                "duration": "Mar 2017 - Present",
+                "description": "Analyzed data to provide insights for business decisions."
+            },
+            {
+                "company": "GreenTech",
+                "position": "Intern",
+                "duration": "Jun 2016 - Aug 2016",
+                "description": "Assisted in various projects and learned about the industry."
+            }
+        ],
+        "education": [
+            {
+                "institution": "Community College",
+                "degree": "Associate of Science in Information Technology",
+                "duration": "Sep 2012 - May 2014"
+            }
+        ]
+    },
+    {
+        "name": "Alice Johnson",
+        "email": "alice.johnson@example.com",
+        "phone": "+1122334455",
+        "experience": [
+            {
+                "company": "Startup Inc.",
+                "position": "Freelance Developer",
+                "duration": "Jan 2015 - Present",
+                "description": "Worked on multiple projects as a freelance developer."
+            },
+            {
+                "company": "Innovatech",
+                "position": "Junior Developer",
+                "duration": "Jun 2018 - Dec 2019",
+                "description": "Assisted in the development of internal tools."
+            }
+        ],
+        "education": [
+            {
+                "institution": "High School",
+                "degree": "High School Diploma",
+                "duration": "Sep 2008 - May 2012"
+            }
+        ]
+    },
+    {
+        "name": "Bob Brown",
+        "email": "bob.brown@example.com",
+        "phone": "+6677889900",
+        "experience": [
+            {
+                "company": "TechCorp",
+                "position": "Software Engineer",
+                "duration": "Jan 2020 - Present",
+                "description": "Developed and maintained web applications."
+            },
+            {
+                "company": "DataInsights",
+                "position": "Data Analyst",
+                "duration": "Mar 2017 - May 2018",
+                "description": "Analyzed data to provide insights for business decisions."
+            }
+        ],
+        "education": [
+            {
+                "institution": "Online Course Platform",
+                "degree": "Certificate in Data Science",
+                "duration": "Jan 2019 - Mar 2019"
+            }
+        ]
+    },
+    {
+        "name": "Charlie Green",
+        "email": "charlie.green@example.com",
+        "phone": "+2233445566",
+        "experience": [
+            {
+                "company": "Innovatech",
+                "position": "Junior Developer",
+                "duration": "Jun 2018 - Dec 2019",
+                "description": "Assisted in the development of internal tools."
+            },
+            {
+                "company": "GreenTech",
+                "position": "Intern",
+                "duration": "Jun 2016 - Aug 2016",
+                "description": "Assisted in various projects and learned about the industry."
+            }
+        ],
+        "education": [
+            {
+                "institution": "Coding Bootcamp",
+                "degree": "Certificate in Full Stack Development",
+                "duration": "Jun 2019 - Aug 2019"
+            }
+        ]
+    }
+]
