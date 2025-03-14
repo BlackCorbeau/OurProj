@@ -14,11 +14,7 @@ import { createChartHRTableDataJson } from './build_data/build_HRTableData.js'
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import bcrypt from 'bcryptjs'
-import { Recruter, Vacancy, Resume, Interview, Metric} from './db.js';
-Interview.addInterview(1, 1)
-Interview.addInterview(2, 1)
-Interview.addInterview(3, 2)
-Interview.addInterview(4, 2)
+import {HRManager, Department, Recruiter, Vacancy, Resume, Interview, Metric } from './db.js';
 const app = express();
 app.set('view engine', 'ejs');
 
@@ -105,7 +101,7 @@ app.post('/login', async (req, res) => {
   console.log('Received login data:', { userEmail, password });
   try {
     const existingUser = await new Promise((resolve, reject) => {
-      Recruter.findByEmail(userEmail, (err, user) => {
+      Recruiter.findByEmail(userEmail, (err, user) => {
         if (err) {
           console.error('Error fetching user by email:', err);
           return reject(err);
@@ -142,17 +138,20 @@ app.post('/manager-login', async (req, res) => {
   const { managerEmail, password } = req.body;
 
   try {
+    // Ищем HR-менеджера по email
     const existingUser = await new Promise((resolve, reject) => {
-      Recruter.allRecruters((err, rows) => {
+      HRManager.findByEmail(managerEmail, (err, user) => {
         if (err) return reject(err);
-        resolve(rows.find(user => user.email === managerEmail));
+        resolve(user);
       });
     });
 
+    // Если пользователь не найден
     if (!existingUser) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
+    // Проверяем пароль
     const isMatch = await bcrypt.compare(password, existingUser.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid username or password :(' });
@@ -178,7 +177,7 @@ app.post('/register', async (req, res) => {
   try {
     // Проверяем, существует ли уже пользователь с таким email
     const existingUser = await new Promise((resolve, reject) => {
-      Recruter.allRecruters((err, rows) => {
+      Recruiter.all((err, rows) => { // Используем метод all вместо allRecruiters
         if (err) return reject(err);
         resolve(rows.find(user => user.email === email));
       });
@@ -192,10 +191,10 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Добавляем нового рекрутера в базу данных
-    Recruter.addRecruter(UserFirstName, UserLastName, hashedPassword, email, registration_date, (err) => {
+    Recruiter.add(UserFirstName, UserLastName, hashedPassword, email, registration_date, null, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ message: 'Ошибка сервера' });
+        return res.status(500).render('error', { message: 'Ошибка сервера' });
       }
 
       // Перенаправляем на страницу входа после успешной регистрации

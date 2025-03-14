@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { Recruter, Vacancy, Resume, Interview, Metric, RecruterMetric } from '../db.js';
+import {HRManager, Department, Recruiter, Vacancy, Resume, Interview, Metric } from '../db.js';
 
 // Получаем путь к текущему файлу
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
